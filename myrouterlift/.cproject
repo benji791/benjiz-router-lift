@@ -8,10 +8,10 @@
 				</macros>
 				<externalSettings/>
 				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -24,7 +24,7 @@
 								<option id="it.baeyens.arduino.compiler.cpp.sketch.option.incpath.298097638" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.cpp.sketch.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/arduino/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/AccelStepper}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/AccelStepper}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/EEPROMEx}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/LiquidCrystal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/LiquidCrystal/src}&quot;"/>
@@ -39,7 +39,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/MemoryFree}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/arduino/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/AccelStepper}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/AccelStepper}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/EEPROMEx}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/LiquidCrystal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/LiquidCrystal/src}&quot;"/>
@@ -76,4 +76,5 @@
 			<resource resourceType="PROJECT" workspacePath="/myrouterlift"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

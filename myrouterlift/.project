@@ -29,32 +29,32 @@
 		<link>
 			<name>Libraries/AccelStepper</name>
 			<type>2</type>
-			<locationURI>ArduinoPivateLibPath/AccelStepper</locationURI>
+			<locationURI>PROJECT_LOC/Libraries/AccelStepper</locationURI>
 		</link>
 		<link>
 			<name>Libraries/EEPROMEx</name>
 			<type>2</type>
-			<locationURI>ArduinoPivateLibPath/EEPROMEx</locationURI>
+			<locationURI>PROJECT_LOC/libraries/EEPROMEx</locationURI>
 		</link>
 		<link>
 			<name>Libraries/LiquidCrystal</name>
 			<type>2</type>
-			<locationURI>ArduinoPivateLibPath/LiquidCrystal</locationURI>
+			<locationURI>PROJECT_LOC/libraries/LiquidCrystal</locationURI>
 		</link>
 		<link>
 			<name>Libraries/MemoryFree</name>
 			<type>2</type>
-			<locationURI>ArduinoPivateLibPath/MemoryFree</locationURI>
+			<locationURI>PROJECT_LOC/libraries/MemoryFree</locationURI>
 		</link>
 		<link>
 			<name>Libraries/phi_interfaces</name>
 			<type>2</type>
-			<locationURI>ArduinoPivateLibPath/phi_interfaces</locationURI>
+			<locationURI>PROJECT_LOC/Libraries/phi_interfaces</locationURI>
 		</link>
 		<link>
 			<name>Libraries/phi_prompt</name>
 			<type>2</type>
-			<locationURI>ArduinoPivateLibPath/phi_prompt</locationURI>
+			<locationURI>PROJECT_LOC/libraries/phi_prompt</locationURI>
 		</link>
 		<link>
 			<name>arduino/core</name>
