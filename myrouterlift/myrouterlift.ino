@@ -8,7 +8,7 @@
 #include <phi_prompt.h>
 #include <MemoryFree.h>
 
-#define DEBUG false // flag to turn on/off debugging
+#define DEBUG true // flag to turn on/off debugging
 #define Serial if(DEBUG)Serial
 
 
@@ -34,11 +34,11 @@
 // pas de la vis en mm (valeur par défaut 2mm)
 static const unsigned short int EEPROM_screw_pitch = EEPROM.getAddress(sizeof(float));
 static float screw_pitch;
-//static float _default_screw_pitch  = 2;
+static float _default_screw_pitch  = 2.0f;
 // nombre de pas par tour de rotation du moteur
 static const unsigned short int EEPROM_motor_no_steps = EEPROM.getAddress(sizeof(int));
 static int motor_no_steps ;
-//static int _default_motor_no_steps = 400;
+static int _default_motor_no_steps = 400;
 // Vitesse maxi moteur
 static const unsigned short int EEPROM_stepper_max_speed = EEPROM.getAddress(sizeof(int));
 static int stepper_max_speed;
@@ -210,8 +210,20 @@ static void init_from_eeprom_float(float *val, unsigned short int addr_EEPROM, c
 // lecture des différents paramètres stockés dans l'EEPROM et mise à jour des variables liées
 static void init_from_eeprom(){
 	char buffer2 [50];
+	if(EEPROM.updateFloat(EEPROM_screw_pitch,_default_screw_pitch))
+		{
+			Serial.println("EEPROM_screw_pitch modifié");
+		} else {
+			Serial.println("EEPROM_screw_pitch pas modifié");
+		}
 	GET_VAR_NAME(EEPROM_screw_pitch,buffer2);
 	init_from_eeprom_float(&screw_pitch,EEPROM_screw_pitch,buffer2);
+	if(EEPROM.updateInt(EEPROM_motor_no_steps,_default_motor_no_steps))
+		{
+			Serial.println("EEPROM_motor_no_steps modifié");
+		} else {
+			Serial.println("EEPROM_motor_no_steps pas modifié");
+		}
 	GET_VAR_NAME(EEPROM_motor_no_steps,buffer2);
 	init_from_eeprom_int(&motor_no_steps,EEPROM_motor_no_steps,buffer2);
 	GET_VAR_NAME(EEPROM_stepper_max_speed,buffer2);
@@ -460,12 +472,19 @@ static void create_phi_menu_from_array(phi_prompt_struct &myMenu, char** m, int 
 
 }
 
-PROGMEM const prog_char parametrage_item00[]="Vitesse moteur";
-PROGMEM const prog_char parametrage_item01[]="Accel. moteur";
-PROGMEM const prog_char parametrage_item02[]="Memoire dispo";
-PROGMEM const prog_char parametrage_item03[]="Format EEPROM";
-PROGMEM const prog_char parametrage_item04[]="Retour menu";
-PROGMEM const char* parametrage_items[] = {parametrage_item00, parametrage_item01, parametrage_item02, parametrage_item03, parametrage_item04};
+const char parametrage_item00[] PROGMEM = "Vitesse moteur";
+const char parametrage_item01[] PROGMEM ="Accel. moteur";
+const char parametrage_item02[] PROGMEM ="Memoire dispo";
+const char parametrage_item03[] PROGMEM ="Format EEPROM";
+const char parametrage_item04[] PROGMEM ="Retour menu";
+const char* const parametrage_items[] PROGMEM = {parametrage_item00, parametrage_item01, parametrage_item02, parametrage_item03, parametrage_item04};
+
+//PROGMEM const prog_char parametrage_item00[]="Vitesse moteur";
+//PROGMEM const prog_char parametrage_item01[]="Accel. moteur";
+//PROGMEM const prog_char parametrage_item02[]="Memoire dispo";
+//PROGMEM const prog_char parametrage_item03[]="Format EEPROM";
+//PROGMEM const prog_char parametrage_item04[]="Retour menu";
+//PROGMEM const char* parametrage_items[] = {parametrage_item00, parametrage_item01, parametrage_item02, parametrage_item03, parametrage_item04};
 
 static void parametrage_menu(){
 	int menu_pointer_1=0;
@@ -836,9 +855,13 @@ static void manual_stepper(){
 
 
 // Menu texts
-PROGMEM const prog_char top_menu_item00[]="Run";
-PROGMEM const prog_char top_menu_item01[]="Parametrage";
-PROGMEM const char *top_menu_items[] = {top_menu_item00, top_menu_item01};
+const char top_menu_item00[] PROGMEM ="Run";
+const char top_menu_item01[] PROGMEM ="Parametrage";
+const char * const top_menu_items[] PROGMEM = {top_menu_item00, top_menu_item01};
+
+//PROGMEM const prog_char top_menu_item00[]="Run";
+//PROGMEM const prog_char top_menu_item01[]="Parametrage";
+//PROGMEM const char *top_menu_items[] = {top_menu_item00, top_menu_item01};
 
 //This program is the main menu. It handles inputs from the keys, updates the menu or executes a certain menu function accordingly.
 static void top_menu()

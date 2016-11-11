@@ -57,28 +57,14 @@
 			<locationURI>PROJECT_LOC/libraries/phi_prompt</locationURI>
 		</link>
 		<link>
-			<name>arduino/core</name>
+			<name>core/core</name>
 			<type>2</type>
-			<locationURI>ArduinoPlatformPath/cores/arduino</locationURI>
+			<location>C:/Dev/eclipse-cpp-mars-2-win32-x86_64/eclipse/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/cores/arduino</location>
 		</link>
 		<link>
-			<name>arduino/variant</name>
+			<name>core/variant</name>
 			<type>2</type>
-			<locationURI>ArduinoPinPath/standard</locationURI>
+			<location>C:/Dev/eclipse-cpp-mars-2-win32-x86_64/eclipse/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/variants/standard</location>
 		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>ArduinoHardwareLibPath</name>
-			<value>file:/C:/Arduino/hardware/arduino/avr/libraries</value>
-		</variable>
-		<variable>
-			<name>ArduinoPinPath</name>
-			<value>file:/C:/Arduino/hardware/arduino/avr/variants</value>
-		</variable>
-		<variable>
-			<name>ArduinoPlatformPath</name>
-			<value>file:/C:/Arduino/hardware/arduino/avr</value>
-		</variable>
-	</variableList>
 </projectDescription>

@@ -4,6 +4,7 @@
 		<cconfiguration id="it.baeyens.arduino.core.toolChain.release.270218487">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="it.baeyens.arduino.core.toolChain.release.270218487" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<macros>
+					<stringMacro name="A.COMPILER.C.ELF.EXTRA_FLAGS" type="VALUE_TEXT" value="-Wl,-u,vfprintf -lprintf_flt -lm -Wl,-u,vfscanf -lscanf_flt -lm"/>
 					<stringMacro name="author" type="VALUE_TEXT" value="Benjamin AMADON"/>
 				</macros>
 				<externalSettings/>
@@ -22,8 +23,6 @@
 							<builder buildPath="${workspace_loc:/myrouterlift}/Release" id="it.baeyens.arduino.sketch.builder.907616975" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="it.baeyens.arduino.sketch.builder"/>
 							<tool id="it.baeyens.arduino.tool.sketch.compiler.cpp.115946866" name="Arduino C++ Compiler" superClass="it.baeyens.arduino.tool.sketch.compiler.cpp">
 								<option id="it.baeyens.arduino.compiler.cpp.sketch.option.incpath.298097638" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.cpp.sketch.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/arduino/core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/AccelStepper}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/EEPROMEx}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/LiquidCrystal}&quot;"/>
@@ -31,20 +30,22 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/phi_interfaces}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/phi_prompt}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/MemoryFree}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/core/variant}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.1070787960" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
 							<tool id="it.baeyens.arduino.tool.compiler.c.1625471822" name="Arduino C Compiler" superClass="it.baeyens.arduino.tool.compiler.c">
 								<option id="it.baeyens.arduino.compiler.c.sketch.option.incpath.1317919826" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.c.sketch.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/MemoryFree}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/AccelStepper}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/EEPROMEx}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/LiquidCrystal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/LiquidCrystal/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/phi_interfaces}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/Libraries/phi_prompt}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/myrouterlift/core/variant}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.1288212591" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
 							</tool>
@@ -52,7 +53,6 @@
 							<tool id="it.baeyens.arduino.tool.ar.1833835615" name="Arduino archiver" superClass="it.baeyens.arduino.tool.ar"/>
 							<tool id="it.baeyens.arduino.tool.combine.803857293" name="Arduino combiner" superClass="it.baeyens.arduino.tool.combine"/>
 							<tool id="it.baeyens.arduino.tool.objcopy.eep.1801549967" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep"/>
-							<tool id="it.baeyens.arduino.tool.objcopy.flash.1595946872" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash"/>
 							<tool id="it.baeyens.arduino.tool.size.1003938263" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
 						</toolChain>
 					</folderInfo>

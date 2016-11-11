@@ -15,20 +15,18 @@ C++_SRCS :=
 PDE_SRCS := 
 CC_SRCS := 
 AR_SRCS := 
-EEP_SRCS := 
 C_SRCS := 
 C_UPPER_DEPS := 
 PDE_DEPS := 
 C_DEPS := 
 AR := 
-EEP := 
-FLASH_IMAGE := 
 CC_DEPS := 
 AR_OBJ := 
 C++_DEPS := 
 LINK_OBJ := 
 CXX_DEPS := 
 ASM_DEPS := 
+HEX := 
 INO_DEPS := 
 SIZEDUMMY := 
 S_UPPER_DEPS := 
@@ -38,12 +36,11 @@ CPP_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
-arduino/core \
-arduino/core/avr-libc \
-Libraries/phi_prompt \
-Libraries/phi_interfaces \
-Libraries/MemoryFree \
-Libraries/LiquidCrystal/src \
-Libraries/EEPROMEx \
-Libraries/AccelStepper \
+Libraries\AccelStepper \
+Libraries\EEPROMEx \
+Libraries\LiquidCrystal\src \
+Libraries\MemoryFree \
+Libraries\phi_interfaces \
+Libraries\phi_prompt \
+core\core \
 

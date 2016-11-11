@@ -1,15 +1,15 @@
 /** \file
  *  \brief     This is the first official release of the phi_interfaces library.
  *  \details   This library unites buttons, rotary encoders and several types of keypads libraries under one library, the phi_interfaces library, for easy of use.
- *  This is the first official release. All currently supported input devices are buttons, matrix keypads, rotary encoders, analog buttons, 2-axis joysticks, serial keypads, and liudr keypads.
+ *  This is the first official release. All currently supported input devices are buttons, matrix keypads, rotary encoders, analog buttons, 2-axis joysticks, serial keypads, and types 1 and 2 liudr keypads.
  *  User is encouraged to obtain compatible hardware from liudr or is solely responsible for converting it to work on other shields or configurations.
  *  \author    Dr. John Liu
- *  \version   1.01
- *  \date      02/05/2012
- *  \pre       Compatible with Arduino IDE 1.0 and 0022.
- *  \bug       Not tested on, Arduino IDE 0023 or arduino MEGA hardware! If you have done such test, please contact me with results.
+ *  \version   1.6.0
+ *  \date      05/28/2015
+ *  \pre       Compatible with Arduino IDE 1.6.
+ *  \bug       Not tested on Arduino IDE higher than 1.6.0!
  *  \warning   PLEASE DO NOT REMOVE THIS COMMENT WHEN REDISTRIBUTING! No warranty!
- *  \copyright Dr. John Liu. Free software for educational and personal uses. Commercial use without authorization is prohibited.
+ *  \copyright Dr. John Liu. GNU GPL V 3.0.
  *  \par Contact
  * Obtain the documentation or find details of the phi_interfaces, phi_prompt TUI library, Phi-2 shield, and Phi-panel hardware or contact Dr. Liu at:
  *
@@ -22,6 +22,12 @@
  * <a href="http://liudr.wordpress.com/phi-2-shield/">http://liudr.wordpress.com/phi-2-shield/</a>
  *
  *  \par Updates
+ * 05/28/2015: Released under GNU GPL V 3.0 Yeah!
+ * 06/25/2014: Finished coding liudr_rotary_encoders_a and liudr_rotary_encoders_d classes with tests.
+ * 06/18/2014: Started to code liudr_rotary_encoders_a for the OSPL V 2.1.X
+ * 02/10/2014: Added phi_liudr_keypads_2 for the new phi-panels.
+ * 11/29/2012: Changed debounce time from 50ms to 20ms to speed up rotary encoder.
+ * 11/24/2012: Added analog_difference define to control the maximal analog difference when comparing. The value was 10.
  * 02/05/2012: Added support for 2-axis joystick as a directional keypad and example code.
  * 01/16/2012: Original code released.
 */
@@ -46,6 +52,7 @@
 #define Analog_keypad 8                 ///< A number of buttons connected together with some resistors and one analog input.
 #define Serial_keypad 9                 ///< Phi-panel serial LCD keypad as input.
 #define Joy_stick 10                    ///< Phi_joy_stick as digital input with 8 directional keys.
+#define Liudr_AD_matrix_pad	11			///< Liudr analog-digital matrix pad used on phi-panel V 2.0.
 
 //Button status
 #define buttons_up 0        ///< Non-transitional button status
@@ -57,7 +64,7 @@
 
 //Operating parameters
 #define buttons_hold_time_def 1000      ///< Default key down time needed to be considered the key is held down
-#define buttons_debounce_time_def 50    ///< Default key down time needed to be considered the key is not bouncing anymore
+#define buttons_debounce_time_def 25    ///< Default key down time needed to be considered the key is not bouncing anymore
 #define buttons_dash_threshold_def 10   ///< Default key down time needed to be considered the key is held down long enough to repeat in a dash speed
 #define buttons_repeat_time_def 200     ///< Default delay between repeating of a held key
 #define buttons_dash_time_def 50        ///< Default delay between dash repeating of a held key
@@ -65,6 +72,10 @@
 //Internal and external "NO KEY" return values
 #define NO_KEYs 255         ///< This is no key in scan code, internal to the library.
 #define NO_KEY 0            ///< This is no key that the library outputs to a caller, to be compatible with keypad.h
+
+//Analog keypad specific defines
+#define analog_difference 12			///< Analog reading maximal difference when comparing with expected analog value.
+#define analog_difference_2 12			///< Used in liudr pad V 2. Analog reading maximal difference when comparing with expected analog value.
 
 //Pure virtual base classes (interfaces) start here
 /*
@@ -123,10 +134,12 @@ class multiple_button_input{
 |  |\  \----.|  `--'  |     |  |     /  _____  \  |  |\  \----.   |  |
 | _| `._____| \______/      |__|    /__/     \__\ | _| `._____|   |__|
 */
-/** \brief a class for rotary encoders
- * \details This class senses a rotary encoder and reports when the rotary knob is turned one detent up or down.
+/** \brief a class for rotary encoders. Please use phi_rotary_encoders_d in new projects. This is here for backward compatibility.
+ * \details  Please use phi_rotary_encoders_d in new projects. This is here for backward compatibility. This class senses a rotary encoder and reports when the rotary knob is turned one detent up or down.
  * You may use this similarly to a keypad. A call to getKey will yield say 'U' or 'D' for dial up or down. You can also call get_angle to get the orientation of the dial.
- * To use a rotary encoder with a clickable shaft, define a button with phi_buttons class or phi_button_arrays class, with the latter as preferred method.
+ * To use a rotary encoder with a clickable shaft, define a button with phi_button_arrays class and sense it separately.
+ * There are several types of rotary encoders with detents, one with both channels off when the encoder is in a detent, another with both channels on when the encoder is in a detent, and then a third type with both channels either on or both off when the encoder is in a detent. The last type has twice the detent as it has complete pulses, such as 12 pulse and 24 detents per 360 degree of rotation. By default, a rotary encoder is set up to have both channels off when the encoder is in a detent. The class does not specifically support or has been tested with rotary encoders without detents, although you are welcome to try and get back to me.
+ * There are several ways to connect a rotary encoder to Arduino. The most obvious way is to connect each channel to an Arduino pin and tie the common to ground. Then you enable internal pullup resistor on the Arduino channels. Another way that I have developed is to connect a rotary encoder to one Arduino analog pin and add 3 resistors. This way saves one pin or two pins (if you use Arduino nano, A6 and A7 are analog but have no digital functions). You connect a 22K resistor between 5V and channel A, another 22K resistor between channel A and common, then a 10K resistor between common and channel B. 
  * By default both channels are off when the knob is in a groove. I strongly suggest you purchase an encoder that does that instead of both channels on when the knob is in a groove.
  * This class supports important functions such as getKey(), which you need to call periodically inside a loop to update the status of the encoder and sense a dial up or down when they happen.
  * Then if the return is up or down, you can trigger actions.
@@ -147,6 +160,101 @@ class phi_rotary_encoders: public multiple_button_input{
   byte stat_seq_ptr;        ///< Current status of the encoder in gray code
   byte counter;             ///< Counts for get_angle() to calculate knob orientation
   char * key_names;         ///< Pointer to array of characters two elements long. Each click up or down is translated into a name from this array such as 'U'.
+};
+
+/*
+______ _____ _____ ___  ________   __    ______ 
+| ___ \  _  |_   _/ _ \ | ___ \ \ / /    |  _  \
+| |_/ / | | | | |/ /_\ \| |_/ /\ V /     | | | |
+|    /| | | | | ||  _  ||    /  \ /      | | | |
+| |\ \\ \_/ / | || | | || |\ \  | |      | |/ / 
+\_| \_|\___/  \_/\_| |_/\_| \_| \_/      |___/  
+*/
+/** \brief a class for rotary encoders connected to digital inputs
+ * \details This class senses a rotary encoder with two digital inputs and reports when the rotary knob is turned one detent up or down.
+ * You may use this similarly to a keypad. A call to getKey will yield say 'U' or 'D' for dial up or down. You can also call get_angle to get the orientation of the dial.
+ * To use a rotary encoder with a clickable shaft, define a button with phi_button_arrays class and sense it separately.
+ * There are several types of rotary encoders with detents, one with both channels off when the encoder is in a detent, another with both channels on when the encoder is in a detent, and then a third type with both channels either on or both off when the encoder is in a detent. The last type has twice the detent as it has complete pulses, such as 12 pulse and 24 detents per 360 degree of rotation. By default, a rotary encoder is set up to have both channels off when the encoder is in a detent (EncoderType_NO). The class does not specifically support or has been tested with rotary encoders without detents, although you are welcome to try and get back to me.
+ * There are several ways to connect a rotary encoder to Arduino. The most obvious way is to connect each channel to an Arduino pin and tie the common to ground. Then you enable internal pullup resistor on the Arduino channels. This class handles this type of hookup. Another way that I have developed is to connect a rotary encoder to one Arduino analog pin and add 3 resistors. Use the phi_rotary_encoders_a class for analog pin inputs. 
+ * By default both channels are off when the knob is in a groove. I strongly suggest you purchase an encoder that does that instead of both channels on when the knob is in a groove or one without detent.
+ * This class supports important functions such as getKey(), which you need to call periodically inside a loop to update the status of the encoder and sense a dial up or down when they happen.
+ * Then if the return is up or down, you can trigger actions.
+ * This library is not interrupt driven and thus has no call-back functions.
+*/
+#define EncoderType_NO 0				///< This rotary encoder has both channels normally open. So if you connect common to GND and channels to arduino pins with pull up resistor enabled, normaly in a detent both channels are open (disconnected from common, which is 5V via pull up). Valid start/stop status binary is 11B
+#define EncoderType_NC 1				///< This rotary encoder has both channels normally closed. So if you connect common to GND and channels to arduino pins with pull up resistor enabled, normaly in a detent both channels are closed (connected to common, in which case is GND). Valid start/stop status binary is 00B
+#define EncoderType_OC 2				///< NOT yet supported. This rotary encoder has both channels normally open or close. So if you connect common to GND and channels to arduino pins with pull up resistor enabled, normaly in a detent both channels are either open (disconnected from common) or closed (connected to common, which is GND). This type of rotary encoder has twice the detent as complete pulses per 360 degrees of rotation.  Valid start/stop status binary is 11B or 00B.
+
+/* not used
+#define EncoderStatus_Ready	0			///< This status means the encoder has an empty state storage and the current state is NOT a valid starting state. The encoder will stay in this state until a valid starting state appears.
+#define EncoderStatus_Rotating 1		///< This status means the encoder has obtained a valid starting state and is rotating. States are stored in the state storage until it is full or a valid starting state appears again.
+#define EncoderABAB	0x387				///< This is the sequence of A changes status, then B, then A, then B, 1110000111B. It is interpreted as 'U' for EncoderType_NO, or 'D' for EncoderType_NC.
+#define EncoderBABA	0x34B				///< This is the sequence of A changes status, then B, then A, then B, 1101001011B. It is interpreted as 'D' for EncoderType_NO, or 'U' for EncoderType_NC.
+#define EncoderAB1	0x07				///< This is the first sequence of A changes status, then B, 000111B. It is interpreted as 'U' for EncoderType_OC.
+#define EncoderBA1	0x0B				///< This is the first sequence of A changes status, then B, 001011B. It is interpreted as 'D' for EncoderType_OC.
+#define EncoderAB2	0x38				///< This is the second sequence of A changes status, then B, 111000B. It is interpreted as 'U' for EncoderType_OC.
+#define EncoderBA2	0x34				///< This is the second sequence of A changes status, then B, 110100B. It is interpreted as 'D' for EncoderType_OC.
+*/
+
+class phi_rotary_encoders_d: public multiple_button_input{
+	public:
+	phi_rotary_encoders_d(char *na, byte ChnA, byte ChnB, byte det, byte en_type); ///< Constructor for rotary encoder
+	byte getKey();            ///< Returns the key corresponding to dial up or down or NO_KEY.
+	byte get_status();        ///< Always returns buttons_up since the encoder works differently than other keypads.
+	byte get_sensed();        ///< Always returns NO_KEY since the encoder works differently than other keypads.
+	byte get_angle();         ///< Get the angle or orientation of the rotary encoder between 0 and detent-1.
+
+	protected:
+	byte EncoderChnA;         ///< Arduino pin connected to channel A of the encoder
+	byte EncoderChnB;         ///< Arduino pin connected to channel B of the encoder
+	byte EncoderType;			///< This describes the type of rotary encoder. Please see the #define in the beginning
+	byte detent;              ///< Number of detents per rotation of the encoder
+	byte counter;             ///< Counts for get_angle() to calculate knob orientation
+	byte stat_seq_ptr;        ///< Current status of the encoder in gray code
+	char * key_names;         ///< Pointer to array of characters two elements long. Each click up or down is translated into a name from this array such as 'U'.
+	//byte valid_starting_state(byte st);				////< This function checks whether the current state in binary is a valid starting state. This solely depends on the encoder type and not how it is wired up.
+	byte get_encoder_state();	///< This function does the actual sensing of the encoder and returns a 2-bit state, with channel A at 1th bit and channel B at 0th bit.
+	//byte find_key();			///< This function matches the logic states with one of the stored states and extracts the corresponding key, such as 'U' or 'D'.
+
+};
+
+/*
+______ _____ _____ ___  ________   __      ___  
+| ___ \  _  |_   _/ _ \ | ___ \ \ / /     / _ \ 
+| |_/ / | | | | |/ /_\ \| |_/ /\ V /     / /_\ \
+|    /| | | | | ||  _  ||    /  \ /      |  _  |
+| |\ \\ \_/ / | || | | || |\ \  | |      | | | |
+\_| \_|\___/  \_/\_| |_/\_| \_| \_/      \_| |_/
+*/
+/** \brief a class for rotary encoders connected to one analog input
+ * \details This class senses a rotary encoder with one analog input and reports when the rotary knob is turned one detent up or down.
+ * You may use this similarly to a keypad. A call to getKey will yield say 'U' or 'D' for dial up or down. You can also call get_angle to get the orientation of the dial.
+ * To use a rotary encoder with a clickable shaft, define a button with phi_button_arrays class and sense it separately.
+ * There are several types of rotary encoders with detents, one with both channels off when the encoder is in a detent, another with both channels on when the encoder is in a detent, and then a third type with both channels either on or both off when the encoder is in a detent. The last type has twice the detent as it has complete pulses, such as 12 pulse and 24 detents per 360 degree of rotation. By default, a rotary encoder is set up to have both channels off when the encoder is in a detent. The class does not specifically support or has been tested with rotary encoders without detents, although you are welcome to try and get back to me.
+ * There are several ways to connect a rotary encoder to Arduino. The most obvious way is to connect each channel to an Arduino pin. Use phi_rotary_encoders_d for this type of hookup. This class handles another way that I have developed is to connect a rotary encoder to one Arduino analog pin and add 3 resistors. This way saves one pin or two pins (if you use Arduino nano, A6 and A7 are analog but have no digital functions). You connect a 22K resistor between 5V and channel A, another 22K resistor between channel A and common, then a 10K resistor between common and channel B.
+ * By default both channels are off when the knob is in a groove. I strongly suggest you purchase an encoder that does that instead of both channels on when the knob is in a groove or one without detent.
+ * This class supports important functions such as getKey(), which you need to call periodically inside a loop to update the status of the encoder and sense a dial up or down when they happen.
+ * Then if the return is up or down, you can trigger actions.
+ * This library is not interrupt driven and thus has no call-back functions.
+*/
+class phi_rotary_encoders_a: public multiple_button_input{
+	public:
+	phi_rotary_encoders_a(char *na, byte ChnA, byte *vals, byte det, byte en_type); ///< Constructor for rotary encoder
+	byte getKey();            ///< Returns the key corresponding to dial up or down or NO_KEY.
+	byte get_status();        ///< Always returns buttons_up since the encoder works differently than other keypads.
+	byte get_sensed();        ///< Always returns NO_KEY since the encoder works differently than other keypads.
+	byte get_angle();         ///< Get the angle or orientation of the rotary encoder between 0 and detent-1.
+
+	protected:
+	byte ChnAnalog;				///< Arduino analog pin connected to the encoder. Read function description on how to connect.
+	byte EncoderType;			///< This describes the type of rotary encoder. Please see the #define in the beginning
+	
+	byte detent;              ///< Number of detents per rotation of the encoder
+	byte stat_seq_ptr;        ///< Current status of the encoder in gray code
+	byte counter;             ///< Counts for get_angle() to calculate knob orientation
+	char * key_names;			///< Pointer to array of characters two elements long. Each click up or down is translated into a name from this array such as 'U'.
+	byte * analog_values;		///< This stores the analog values of the encoder when the various encoder states: [0]=A&B open, [1]=A closed, B open, [2]=A&B closed, [3]=A open, B closed, [4]=A&B open. Being byte arrays, they only store 1/4 the actual analogRead values, since the four values are far enough apart. Example: analog_values[]={152,128,0,80};
+	byte get_encoder_state(byte prev_state);	///< This function does the actual sensing of the encoder and returns a 2-bit state, with channel A at 1th bit and channel B at 0th bit.
 };
 
 /*
@@ -352,6 +460,32 @@ class phi_liudr_keypads: public phi_keypads{
 
   byte sense_all();         ///< This senses all input pins.
   void updateShiftRegister(byte first8, byte next8);    ///< This updates shift register with 2 bytes.
+};
+
+/*
+  _     _           _     ____  
+ | |   (_)_   _  __| |_ _|___ \ 
+ | |   | | | | |/ _` | '__|__) |
+ | |___| | |_| | (_| | |  / __/ 
+ |_____|_|\__,_|\__,_|_| |_____|
+*/
+/** \brief a class for buttons connected to analog pin with resistors and digital pins that pull to ground to form a matrix keypad
+ * \details This class expands analogButton into a real keypad. Please refer to the diagram on my blog.
+ * If you need less buttons, just don't connect that many and leave the rest of the circuit with all resistors untouched.
+ * Only one function needs to be implemented, the sense_all(). Everything higher level is the same across all keypad subclasses, defined in phi_keypads.
+ * You need to store 4 digital pin numbers after the button column pins for 4 LEDs to be driven.
+ * Find the sample circuit on my blog under http://liudr.wordpress.com/phi_interfaces/
+*/
+class phi_liudr_keypads_2: public phi_keypads{
+  public:
+  phi_liudr_keypads_2(char *na, byte * sp, byte asp, byte r, byte c, int * dp); ///< Constructor for liudr keypad version 2
+  void setLed(byte led, byte on_off);   ///< Updates LED status using digital pins that are stored in mySensorPins array, after all the digital column pins.
+  void setLedByte(byte led);            ///< Updates LED status using digital pins that are stored in mySensorPins array, after all the digital column pins.
+
+  protected:
+  byte analog_sensing_pin;	///< This is the analog pin
+  int * values;             ///< This pointer points to an integer array with values of analog inputs. The number of dividers is equal to the number of buttons on each row. The values should increase monotonically, such as 0,146,342,513,744. A range of 50 between the stored and read values is taken as match to guarantee the match is good. These values apply to all columns. The last two values represents no buttons and a single button that connects the analog pin to 5V.
+  byte sense_all();         ///< This scans the digital pins and senses the analog input pin for change of key status.
 };
 
 #endif

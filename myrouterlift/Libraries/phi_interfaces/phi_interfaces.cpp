@@ -119,6 +119,255 @@ byte phi_rotary_encoders::get_angle()
   return (((int)counter)%detent+detent)%detent;
 }
 
+/*
+______ _____ _____ ___  ________   __    ______ 
+| ___ \  _  |_   _/ _ \ | ___ \ \ / /    |  _  \
+| |_/ / | | | | |/ /_\ \| |_/ /\ V /     | | | |
+|    /| | | | | ||  _  ||    /  \ /      | | | |
+| |\ \\ \_/ / | || | | || |\ \  | |      | |/ / 
+\_| \_|\___/  \_/\_| |_/\_| \_| \_/      |___/  
+*/
+/**
+ * \details Constructor for rotary encoder. Provide the names of up and down actions such as 1, and 2, or 'U' and 'D', arduino pins for channels A and B, and number of detent per rotation. Please define the shaft click as a regular phi_buttons or phi_button_arrays object.
+ * \param na This is the name of (or pointer to) a char array that stores the names corresponding to the rotary encoder dial up and down.
+ * \param ChnA This is the arduino pin connected to the encoder channel A.
+ * \param ChnB This is the arduino pin connected to the encoder channel B.
+ * \param det This is the number of detent per rotation.
+ * \param en_type This is the type of rotary encoder, EncoderType_NO, EncoderType_NC. EncoderType_OC is not yet supported. See #defines in the header file.
+
+ * Example:
+ 
+char mapping[]={'U','D'}; // This is a rotary encoder that returns U for up and D for down rotation on the dial.
+
+phi_rotary_encoders my_encoder(mapping, Encoder1ChnA, Encoder1ChnB, EncoderDetent, EncoderType); // Replace Encoder1ChnA, Encoder1ChnB, EncoderDetent, EncoderType with actual numbers.
+ */
+phi_rotary_encoders_d::phi_rotary_encoders_d(char *na, byte ChnA, byte ChnB, byte det, byte en_type)
+{
+	device_type=Rotary_encoder;
+	key_names=na; // Translated names of the keys, such as '0'.
+	EncoderChnA=ChnA;
+	EncoderChnB=ChnB;
+	EncoderType=en_type;
+
+	pinMode(EncoderChnA, INPUT);
+	digitalWrite(EncoderChnA, HIGH);
+	pinMode(EncoderChnB, INPUT);
+	digitalWrite(EncoderChnB, HIGH);
+
+	detent=det;
+	counter=0;
+	stat_seq_ptr=4; // Center the status of the encoder
+}
+
+/**
+ * \details This function does the actual sensing of the encoder and returns a 2-bit state, with channel A at 1th bit and channel B at 0th bit. It inverts the results from an NC type encoder so matching sequence will be easier to do.
+ * \return It returns the key from mapping stored in key_names[].
+ */
+byte phi_rotary_encoders_d::get_encoder_state()
+{
+	if (EncoderType==EncoderType_NC)
+	return ((!digitalRead(EncoderChnA))<<1) | (!digitalRead(EncoderChnB));
+	else return (digitalRead(EncoderChnA)<<1) | digitalRead(EncoderChnB);
+}
+
+/**
+ * \details This actually performs the encoder read and returns up or down dials with the translation done by key_names.
+ * If you are not very interested in the inner working of this library, this is the only function you need to call to get a response on the rotary encoder.
+ * It assumes the channels are off when the knob is in a groove. To assume the channels are on when the knob is in a groove, read the code on stat_deq.
+ * To properly sense the encoder, call this function inside of a loop.
+ * \return It returns the named keys defined by the constructor such as 'U' and 'D' for up and down dial rotations.
+ */
+byte phi_rotary_encoders_d::getKey()
+{
+	static const byte stat_seq[]={3,2,0,1,3,2,0,1,3}; // For always on switches use {0,1,3,2,0,1,3,2,0}; For the sake of simple coding, please don't mix always-on encoders with always-off encoders.
+	byte stat_int=get_encoder_state();// This layer separates the actual sensing of either analog or digital signal from the logic layer.
+	if (stat_int==stat_seq[stat_seq_ptr+1])
+	{
+		stat_seq_ptr++;
+		if (stat_seq_ptr==8)
+		{
+			stat_seq_ptr=4;
+			counter++;
+			return key_names[0];
+		}
+	}
+	else if (stat_int==stat_seq[stat_seq_ptr-1])
+	{
+		stat_seq_ptr--;
+		if (stat_seq_ptr==0)
+		{
+			stat_seq_ptr=4;
+			counter--;
+			return key_names[1];
+		}
+	}
+	return NO_KEY;
+}
+
+/**
+ * \details This always returns buttons_up due to the fact that rotary encoders can't assume other status.
+ * \return This function is defined only to be compatible with the parent class and always returns buttons_up. 
+ */
+byte phi_rotary_encoders_d::get_status()
+{
+  return buttons_up;
+}
+
+/**
+ * \details This always returns NO_KEY due to the nature of rotary encoders.
+ * \return This function is defined only to be compatible with the parent class and always returns NO_KEY. 
+ */
+byte phi_rotary_encoders_d::get_sensed()
+{
+  return NO_KEY;
+}
+
+/**
+ * \details Get the angle or orientation of the rotary encoder between 0 and detent-1. This function calls getKey to update the angle.
+ * If you call getKey BEFORE get_angle, you get the dial up/down from getKey and the correct angle from get_angle. If you call get_angle BEFORM getKey, the dial up/down is read and lost but you get the correct angle.
+ * So make your decision. Do you want just dial up/down actions? Then only call getKey. Do you want just angle? Then only call get_angle. Chances of you need them both is very slim but as mentioned you should call getKey first.
+ * To properly update the angle, you need to call this function inside of a loop.
+ * \return It returns a value between 0 and detent-1. You can calculate angle with it return.
+ */
+byte phi_rotary_encoders_d::get_angle()
+{
+  getKey();
+  return (((int)counter)%detent+detent)%detent;
+}
+
+
+
+
+/*
+______ _____ _____ ___  ________   __      ___  
+| ___ \  _  |_   _/ _ \ | ___ \ \ / /     / _ \ 
+| |_/ / | | | | |/ /_\ \| |_/ /\ V /     / /_\ \
+|    /| | | | | ||  _  ||    /  \ /      |  _  |
+| |\ \\ \_/ / | || | | || |\ \  | |      | | | |
+\_| \_|\___/  \_/\_| |_/\_| \_| \_/      \_| |_/
+*/
+/**
+ * \details Constructor for rotary encoder. Provide the names of up and down actions such as 1, and 2, or 'U' and 'D', arduino pins for channels A and B, and number of detent per rotation. Please define the shaft click as a regular phi_buttons or phi_button_arrays object.
+ * \param na This is the name of (or pointer to) a char array that stores the names corresponding to the rotary encoder dial up and down.
+ * \param ChnA This is the arduino analog pin connected to the encoders.
+ * \param vals This stores the values of the analog channel readings for conversion to states. This stores the analog values of the encoder when the various encoder states: [0]=A&B open, [1]=A closed, B open, [2]=A&B closed, [3]=A open, B closed, [4]=A&B open. Being byte arrays, they only store 1/4 the actual analogRead values, since the four values are far enough apart. Example: analog_values[]={152,128,0,80};
+ * \param det This is the number of detent per rotation.
+ * \param en_type This is the type of encoder, EncoderType_NO, EncoderType_NC, EncoderType_OC. See #defines in the header file.
+
+ * Example:
+ 
+char mapping[]={'U','D'}; // This is a rotary encoder that returns U for up and D for down rotation on the dial.
+byte analog_vals[]={151,128,0,80};
+
+phi_rotary_encoders_a my_encoder(mapping, EncoderAnalogChn, analog_vals, EncoderDetent, EncoderType_NO); // The most common normally open encoder (NO). Replace EncoderAnalogChn, EncoderDetent with actual numbers.
+ */
+phi_rotary_encoders_a::phi_rotary_encoders_a(char *na, byte ChnA, byte *vals, byte det, byte en_type)
+{
+	device_type=Rotary_encoder;
+	key_names=na; // Translated names of the keys, such as '0'.
+	ChnAnalog=ChnA;
+	EncoderType=en_type;
+	detent=det;
+	analog_values=vals;
+	counter=0;
+	stat_seq_ptr=4; // Center the status of the encoder
+}
+
+/**
+ * \details This function does the actual sensing of the encoder and returns a 2-bit state, with channel A at 1th bit and channel B at 0th bit. It inverts the results from an NC type encoder so matching sequence will be easier to do.
+ * \param prev_state This is the previous encoder state supplied by the caller. In case the reading is a stray value, this is returned.
+ * \return It returns the key from mapping stored in key_names[].
+ */
+byte phi_rotary_encoders_a::get_encoder_state(byte prev_state)
+{
+	int analog_in=0;
+	byte ret_val=B11;
+	byte found_val=0; // Sometimes analog value strays away from the expected values and we may find no value.
+	//analogRead(ChnAnalog); // Read and discard.
+	analog_in=analogRead(ChnAnalog)/4; // Read once and discard.
+	
+	/*for (byte i=0;i<4;i++)
+	{
+		analog_in+=analogRead(ChnAnalog);
+	}
+	analog_in/=16;*/
+	
+	if (abs(analog_in-analog_values[0])<=analog_difference/2) {ret_val=B11; found_val=1;} //Both open
+	else if (abs(analog_in-analog_values[1])<=analog_difference/2) {ret_val=1; found_val=1;} //A close and B open
+	else if (abs(analog_in-analog_values[2])<=analog_difference/2) {ret_val=0; found_val=1;} //Both close
+	else if (abs(analog_in-analog_values[3])<=analog_difference/2) {ret_val=B10; found_val=1;} //A open B close
+	
+	if (!found_val) return prev_state; // In case the analog value is stray value away from expected, just return previous state supplied by the caller.
+	if (EncoderType==EncoderType_NC)
+	return ((~ret_val)&B11);
+	else return ret_val;
+}
+
+/**
+ * \details This actually performs the encoder read and returns up or down dials with the translation done by key_names.
+ * If you are not very interested in the inner working of this library, this is the only function you need to call to get a response on the rotary encoder.
+ * It assumes the channels are off when the knob is in a groove. To assume the channels are on when the knob is in a groove, read the code on stat_deq.
+ * To properly sense the encoder, call this function inside of a loop.
+ * \return It returns the named keys defined by the constructor such as 'U' and 'D' for up and down dial rotations.
+ */
+byte phi_rotary_encoders_a::getKey()
+{
+  static const byte stat_seq[]={3,2,0,1,3,2,0,1,3}; // For always on switches use {0,1,3,2,0,1,3,2,0}; For the sake of simple coding, please don't mix always-on encoders with always-off encoders.
+  byte stat_int=get_encoder_state(stat_seq[stat_seq_ptr]);// This layer separates the actual sensing of either analog or digital signal from the logic layer. Due to analog nature sometimes stray value is read so previous state is supplied.
+  if (stat_int==stat_seq[stat_seq_ptr+1])
+  {
+    stat_seq_ptr++;
+    if (stat_seq_ptr==8)
+    {
+      stat_seq_ptr=4;
+      counter++;
+      return key_names[0];
+    }
+  }
+  else if (stat_int==stat_seq[stat_seq_ptr-1])
+  {
+    stat_seq_ptr--;
+    if (stat_seq_ptr==0)
+    {
+      stat_seq_ptr=4;
+      counter--;
+      return key_names[1];
+    }
+  }
+  return NO_KEY;
+}
+
+/**
+ * \details This always returns buttons_up due to the fact that rotary encoders can't assume other status.
+ * \return This function is defined only to be compatible with the parent class and always returns buttons_up. 
+ */
+byte phi_rotary_encoders_a::get_status()
+{
+  return buttons_up;
+}
+
+/**
+ * \details This always returns NO_KEY due to the nature of rotary encoders.
+ * \return This function is defined only to be compatible with the parent class and always returns NO_KEY. 
+ */
+byte phi_rotary_encoders_a::get_sensed()
+{
+  return NO_KEY;
+}
+
+/**
+ * \details Get the angle or orientation of the rotary encoder between 0 and detent-1. This function calls getKey to update the angle.
+ * If you call getKey BEFORE get_angle, you get the dial up/down from getKey and the correct angle from get_angle. If you call get_angle BEFORM getKey, the dial up/down is read and lost but you get the correct angle.
+ * So make your decision. Do you want just dial up/down actions? Then only call getKey. Do you want just angle? Then only call get_angle. Chances of you need them both is very slim but as mentioned you should call getKey first.
+ * To properly update the angle, you need to call this function inside of a loop.
+ * \return It returns a value between 0 and detent-1. You can calculate angle with it return.
+ */
+byte phi_rotary_encoders_a::get_angle()
+{
+  getKey();
+  return (((int)counter)%detent+detent)%detent;
+}
+
 //Serials class member functions:
 /*
      _______. _______ .______       __       ___       __
@@ -397,7 +646,7 @@ phi_analog_keypads::phi_analog_keypads(char *na, byte *sp, int * dp, byte r, byt
   for (int j=0;j<rows;j++) // Setting sensing rows to input and disabling internal pull-up resistors.
   {
     pinMode(mySensorPins[j],INPUT);
-    digitalWrite(mySensorPins[j],LOW);
+    digitalWrite(mySensorPins[j],LOW); // To use phi-3 shield with internal pullup, do digitalWrite(A0,HIGH) after simple_setup_phi_3() or after this constructor.
   }
 }
 
@@ -416,7 +665,7 @@ byte phi_analog_keypads::sense_all()
     for (byte i=0;i<columns;i++)
     {
       int diff=abs(values[i]-temp); // Find the difference between analog read and stored values.
-      if (diff<10) 
+      if (diff<analog_difference) 
       {
         return (i+j*columns); // returns the button pressed
       }
@@ -661,4 +910,104 @@ byte phi_liudr_keypads::sense_all()
     }
   }
   return NO_KEYs; // no buttons pressed
+}
+
+//Liudr analog digital keypads class member functions
+/*
+  _     _           _     ____  
+ | |   (_)_   _  __| |_ _|___ \ 
+ | |   | | | | |/ _` | '__|__) |
+ | |___| | |_| | (_| | |  / __/ 
+ |_____|_|\__,_|\__,_|_| |_____|
+ */
+ /**
+ * \details Analog keypads are made up of several analog pins. Each pin is connected to several buttons and resistors. Find diagram in my blog.
+ * All analog pins need to be connected to the same resistor network. If you don't need as many buttons, you can omit some buttons but never omit any resistors.
+ * \param na This is the name of (or pointer to) a char array that stores the names corresponding to each key press.
+ * \param sp This is the name of (or pointer to) a byte array that stores all analog pins used by the keypad. Unlike the original analogbutton, you can use multiple pins, with each pin connected to a number of buttons to form a keypad.
+ * \param dp This is the name of (or pointer to) an integer array that stores the analog values of each button press. The array must be sorted from small to big. If you have 5 buttons, this array should have 5 elements.
+ * \param r This is the number of analog pins or "rows" of the analog keypad.
+ * \param c This is the number of buttons attached to each analog pin or "columns" of the analog keypad. All analog pins should connect to identical button/resistor configurations.
+ *  If you don't need that many buttons for one particular pin, don't forget to connect all the resistors so that the analog values will be the same.
+ */
+phi_liudr_keypads_2::phi_liudr_keypads_2(char *na, byte * sp, byte asp, byte r, byte c, int * dp)
+{
+  device_type=Liudr_AD_matrix_pad;
+  key_names=na; // Translated names of the keys, such as '0'.
+  mySensorPins=sp; // Row pins
+  analog_sensing_pin=asp;	// Analog sensing pin
+  values=dp; // Points to divider value array.
+  rows=r;
+  columns=c;
+  button_sensed=NO_KEYs; // This indicates which button is sensed or 255 if no button is sensed.
+  button_status=buttons_up; // This indicates the status of the button if button_sensed is not 255.
+  button_status_t=millis(); // This is the time stamp of the sensed button first in the status stored in button_status.
+  
+  for (int j=0;j<columns+4;j++) // Setting sensing rows and 4 LED pins to input and disabling internal pull-up resistors.
+  {
+    pinMode(mySensorPins[j],INPUT);
+    digitalWrite(mySensorPins[j],LOW); // To use phi-3 shield with internal pullup, do digitalWrite(A0,HIGH) after simple_setup_phi_3() or after this constructor.
+  }
+  pinMode(analog_sensing_pin,INPUT);
+  digitalWrite(analog_sensing_pin,HIGH);	// Enable internal pullup
+}
+
+/**
+ * \details This is the most physical layer of the phi_keypads. Senses all input pins for a valid status.
+ * This function is not intended to be call by arduino code but called within the library instead.
+ * If all you want is a key press, call getKey.
+ * \return It returns the button scan code (0-max_button-1) that is pressed down or NO_KEYs if no button is pressed down. The return is 0-based so the value is 0-15 if the array has 16 buttons.
+ */
+byte phi_liudr_keypads_2::sense_all()
+{
+int temp, diff;
+
+	for (byte k=0;k<columns;k++)
+	{
+		for (byte j=0;j<columns;j++) // Set all digital sense pins to tri-state
+		{
+			pinMode(mySensorPins[j],INPUT);
+			digitalWrite(mySensorPins[j],LOW);
+		}
+		pinMode(mySensorPins[k],OUTPUT); // Only set the pin being scanned to output LOW
+		digitalWrite(mySensorPins[k],LOW);
+		
+		temp=analogRead(analog_sensing_pin);
+		for (byte i=0;i<rows;i++)
+		{
+			diff=abs(values[i]-temp); // Find the difference between analog read and stored values.
+			if (diff<analog_difference_2) 
+			{
+				return (i+k*rows); // returns the button pressed
+			}
+		}
+		if (abs(1023-temp)<analog_difference_2) return rows*columns; // The 5V button is pressed.
+	}
+	return NO_KEYs;
+}
+
+/**
+ * \details You may connect a second shift register and connect up to 8 LEDs to this register. This function can set the status of each of these 8 LEDs.
+ * \param led This is the LED number to be set. 0-7.
+ * \param on_off This is the status you want to set the LED to, either LOW or HIGH.
+ */
+void phi_liudr_keypads_2::setLed(byte led, byte on_off)
+{
+  pinMode(mySensorPins[columns+led],OUTPUT);
+  digitalWrite(mySensorPins[columns+led],on_off);
+}
+
+
+/**
+ * \details You may connect a second shift register and connect up to 8 LEDs to this register. This function can set the status of each of these 8 LEDs.
+ * \param led This is the binary status of all 8 LEDs. If you decide to turn on all LEDs, use 255.
+ */
+void phi_liudr_keypads_2::setLedByte(byte led)
+{
+	for (byte i=0;i<4;i++)
+	{
+		pinMode(mySensorPins[columns+i],OUTPUT);
+		digitalWrite(mySensorPins[columns+i],(led&1));
+		led=led>>1;
+	}
 }
