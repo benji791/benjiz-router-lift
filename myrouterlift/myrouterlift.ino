@@ -218,6 +218,7 @@ static void init_from_eeprom(){
 		}
 	GET_VAR_NAME(EEPROM_screw_pitch,buffer2);
 	init_from_eeprom_float(&screw_pitch,EEPROM_screw_pitch,buffer2);
+
 	if(EEPROM.updateInt(EEPROM_motor_no_steps,_default_motor_no_steps))
 		{
 			Serial.println("EEPROM_motor_no_steps modifié");
@@ -226,14 +227,19 @@ static void init_from_eeprom(){
 		}
 	GET_VAR_NAME(EEPROM_motor_no_steps,buffer2);
 	init_from_eeprom_int(&motor_no_steps,EEPROM_motor_no_steps,buffer2);
+
 	GET_VAR_NAME(EEPROM_stepper_max_speed,buffer2);
 	init_from_eeprom_int(&stepper_max_speed,EEPROM_stepper_max_speed,buffer2);
+
 	GET_VAR_NAME(EEPROM_stepper_acceleration,buffer2);
 	init_from_eeprom_int(&stepper_acceleration,EEPROM_stepper_acceleration,buffer2);
+
 	GET_VAR_NAME(EEPROM_stepper_last_known_position,buffer2);
 	init_from_eeprom_long(&stepper_last_known_position,EEPROM_stepper_last_known_position,buffer2);
+
 	GET_VAR_NAME(EEPROM_stepper_high_bound,buffer2);
 	init_from_eeprom_long(&stepper_high_bound,EEPROM_stepper_high_bound,buffer2);
+
 	GET_VAR_NAME(EEPROM_stepper_low_bound,buffer2);
 	init_from_eeprom_long(&stepper_low_bound,EEPROM_stepper_low_bound,buffer2);
 }
@@ -297,8 +303,10 @@ static void compute_position_in_step(float &position_mm, long &position_step){
 //
 static void format_eeprom() {
 	// Mise à 0 complete
-	for (int i = EEPROM_MIN_ADDR; i <= EEPROM_MAX_ADDR; i++)
+	for (int i = EEPROM_MIN_ADDR; i <= EEPROM_MAX_ADDR; i++){
+		delay(100);
 		EEPROM.write(i, 0);
+	}
 }
 
 // affiche la mémoire dispo sur le lcd
@@ -310,8 +318,17 @@ static void displayMemory(){
 	return;
 }
 
+
+// met à jour (variable et EEPROM) la derniere position
+static void update_stepper_last_known_position(){
+	stepper_last_known_position = stepper.currentPosition();
+	if(EEPROM.updateLong(EEPROM_stepper_last_known_position,stepper_last_known_position))
+		Serial.println(stepper_last_known_position);
+}
+
 // timer d'affichage pour ne pas ralentir le reste des opérations
 static unsigned long timer_display_stepper=0;
+static unsigned long timer_manual_stepper_update_position=0;
 static void display_stepper_position(){
 	if (millis()-timer_display_stepper>200){
 		lcd.setCursor(0,0);
@@ -335,7 +352,12 @@ static void display_stepper_position(){
 		}
 		sprintf(buff,"%c : %s",memorybank_mapping[mem_index],buff2);
 		center_text(buff);
-
+		// on tient à jour la position avec l'affichage
+		if(millis()-timer_manual_stepper_update_position>300)
+				{
+					update_stepper_last_known_position();
+					timer_manual_stepper_update_position=millis();
+				}
 		timer_display_stepper=millis(); // on mémorise la date du dernier affichage
 	}
 }
@@ -523,13 +545,6 @@ static void parametrage_menu(){
 	}
 }
 
-
-// met à jour (variable et EEPROM) la derniere position
-static void update_stepper_last_known_position(){
-	stepper_last_known_position = stepper.currentPosition();
-	EEPROM.updateLong(EEPROM_stepper_last_known_position,stepper_last_known_position);
-}
-
 static void mystop(){
 	int targetOrig = stepper.targetPosition();
 	int distanceRestanteOrig = abs(targetOrig-stepper.currentPosition());
@@ -552,6 +567,7 @@ static void setNewCurrentPosition(long newPos){
 	update_stepper_bounds();
 	update_stepper_last_known_position();
 }
+
 
 // deplace le stepper tant que l'on tient un bouton enfonce
 static void moveWhileButtonheld(int button){
@@ -896,6 +912,9 @@ static void top_menu()
 void setup() {
 	//pinMode(1,OUTPUT);
 	Serial.begin(115200);
+	EEPROM.setMaxAllowedWrites(32767);
+	int i = 32767;
+	Serial.println(i);
 	init_pins();
 	init_from_eeprom();
 	init_from_eeprom_memorybank();

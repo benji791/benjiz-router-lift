@@ -64,7 +64,7 @@
 		<link>
 			<name>core/variant</name>
 			<type>2</type>
-			<location>C:/Dev/eclipse-cpp-mars-2-win32-x86_64/eclipse/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/variants/standard</location>
+			<location>C:/Dev/eclipse-cpp-mars-2-win32-x86_64/eclipse/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/variants/uno_pro</location>
 		</link>
 	</linkedResources>
 </projectDescription>

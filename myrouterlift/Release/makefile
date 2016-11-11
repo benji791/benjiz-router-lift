@@ -83,7 +83,7 @@ arduino.ar: $(AR_OBJ)
 
 myrouterlift.elf: $(LINK_OBJ) $(AR)
 	@echo 'Starting combiner'
-	"C:\Dev\eclipse-cpp-mars-2-win32-x86_64\eclipse\arduinoPlugin\tools\arduino\avr-gcc\4.9.2-atmel3.5.3-arduino2/bin/avr-gcc" -Os -flto -fuse-linker-plugin -Wl,--gc-sections -mmcu=atmega328p -Wl,-u,vfprintf -lprintf_flt -lm -Wl,-u,vfscanf -lscanf_flt -lm -o "Z:/dev/mars_workspace/benjiz-router-lift/myrouterlift/Release/myrouterlift.elf"  $(LINK_OBJ) $(AR)  "-LZ:/dev/mars_workspace/benjiz-router-lift/myrouterlift/Release" -lm
+	"C:\Dev\eclipse-cpp-mars-2-win32-x86_64\eclipse\arduinoPlugin\tools\arduino\avr-gcc\4.9.2-atmel3.5.3-arduino2/bin/avr-gcc" -Os -flto -fuse-linker-plugin -Wl,--gc-sections -mmcu=atmega1284p -Wl,-u,vfprintf -lprintf_flt -lm -Wl,-u,vfscanf -lscanf_flt -lm -o "Z:/dev/mars_workspace/benjiz-router-lift/myrouterlift/Release/myrouterlift.elf"  $(LINK_OBJ) $(AR)  "-LZ:/dev/mars_workspace/benjiz-router-lift/myrouterlift/Release" -lm
 	@echo 'Finished building: $@'
 	@echo ' '
 
