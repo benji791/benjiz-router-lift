@@ -1,3 +1,6 @@
+=\=\=\=\=\=\=
+<<<<<<<=HEAD
+>>>>>>>=refs/remotes/github.com_https/master
 eclipse.preferences.version=1
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.ALT_SIZE_COMMAND/delimiter=;
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.ALT_SIZE_COMMAND/operation=replace
@@ -166,18 +169,10 @@ environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.DTS/value=0
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.LOCAL/delimiter=;
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.LOCAL/operation=replace
-<<<<<<< HEAD
-environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.LOCAL/value=1478956752
-=======
-environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.LOCAL/value=1478955133
->>>>>>> refs/remotes/github.com_https/master
+environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.LOCAL/value=1478958686
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.UTC/delimiter=;
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.UTC/operation=replace
-<<<<<<< HEAD
-environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.UTC/value=1478953152
-=======
-environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.UTC/value=1478951533
->>>>>>> refs/remotes/github.com_https/master
+environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.UTC/value=1478955086
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.ZONE/delimiter=;
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.ZONE/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.270218487/A.EXTRA.TIME.ZONE/value=3600
