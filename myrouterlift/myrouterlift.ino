@@ -304,7 +304,6 @@ static void compute_position_in_step(float &position_mm, long &position_step){
 static void format_eeprom() {
 	// Mise à 0 complete
 	for (int i = EEPROM_MIN_ADDR; i <= EEPROM_MAX_ADDR; i++){
-		delay(100);
 		EEPROM.write(i, 0);
 	}
 }
@@ -932,7 +931,7 @@ void setup() {
 
 }
 
-long last_checktime = 0;
+//long last_checktime = 0;
 
 void loop() {
 //	int i,j, key,key2;
