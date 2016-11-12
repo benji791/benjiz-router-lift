@@ -932,7 +932,7 @@ void setup() {
 
 }
 
-long last_checktime = 0;
+//long last_checktime = 0;
 
 void loop() {
 //	int i,j, key,key2;
